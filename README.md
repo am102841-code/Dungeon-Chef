@@ -82,7 +82,7 @@ This project began as a way to learn game development and has grown into a large
 
 ---
 
-## What I Learned
+## Learning from Dungeon Chef 
 
 While developing Dungeon Chef, I learned how to:
 
