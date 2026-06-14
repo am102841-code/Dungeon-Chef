@@ -2,7 +2,7 @@
 
 ## About the Game
 
-**Dungeon Chef** is a 2D top-down survival and cooking game built with **Python** and **Pygame**. Players explore a dangerous dungeon, avoid monsters, manage their health, and gather resources while working toward becoming the ultimate dungeon chef.
+**Dungeon Chef** is a 2D top-down survival and cooking game built with **Python** and **Pygame**. This game will include features similar to **Dungeon Platformer**, which is a main inspiration. Players explore a dangerous dungeon, avoid monsters, manage their health, and gather resources while working toward becoming the ultimate dungeon chef.
 
 This project began as a way to learn game development and has grown into a larger game featuring enemy AI, health systems, collision detection, inventory mechanics, and camera movement.
 
