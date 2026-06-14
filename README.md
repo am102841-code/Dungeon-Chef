@@ -1,4 +1,3 @@
-# Dungeon-Chef
 # Dungeon Chef
 
 ## About the Game
