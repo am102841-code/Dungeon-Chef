@@ -18,7 +18,13 @@ WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('Dungeon Chef')
 
 # Variables
-spawn_points = [(500-25, 75), (50, WINDOW_HEIGHT//2), (950-50, 300)]
+# Spawn points in four different areas of the dungeon room (175, 100, 2100, 2100)
+spawn_points = [
+    (300, 200),      # Top-left area of dungeon
+    (2000, 200),     # Top-right area of dungeon
+    (300, 2000),     # Bottom-left area of dungeon
+    (2000, 2000)     # Bottom-right area of dungeon
+]
 last_spawn_time = 0
 spawn_interval = 3000  # 2.3 seconds in milliseconds
 fading_surface = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -29,14 +35,14 @@ camera_x = 0
 camera_y = 0
 
 # Images
-background = pygame.image.load('floor.png').convert_alpha()
+background = pygame.image.load('dungeon_layout2.png').convert_alpha()
 background = pygame.transform.scale(background, (3000, 3000))
 
 
 
 class Player():
     def __init__(self):
-        self.x = 300
+        self.x = 800
         self.y = 500
         self.width = 50
         self.height = 50
@@ -64,40 +70,52 @@ class Player():
             if station1.collisions(self):
                 self.hitbox.left = station1.hitbox.right
                 self.x = self.hitbox.x
-            elif boundary1.collisions(self):
-                if boundary1.left.colliderect(self.hitbox):
-                    self.hitbox.left = boundary1.left.right
-                    self.x = self.hitbox.x
+            else:
+                for boundary in boundaries:
+                    if boundary.collisions(self):
+                        if boundary.left.colliderect(self.hitbox):
+                            self.hitbox.left = boundary.left.right
+                            self.x = self.hitbox.x
+                            break
         if keys[pygame.K_RIGHT]:
             self.x += speed
             self.update()
             if station1.collisions(self):
                 self.hitbox.right = station1.hitbox.left
                 self.x = self.hitbox.x
-            elif boundary1.collisions(self):
-                if boundary1.right.colliderect(self.hitbox):
-                    self.hitbox.right = boundary1.right.left
-                    self.x = self.hitbox.x
+            else:
+                for boundary in boundaries:
+                    if boundary.collisions(self):
+                        if boundary.right.colliderect(self.hitbox):
+                            self.hitbox.right = boundary.right.left
+                            self.x = self.hitbox.x
+                            break
         if keys[pygame.K_UP]:
             self.y -= speed
             self.update()
             if station1.collisions(self):
                 self.hitbox.top = station1.hitbox.bottom
                 self.y = self.hitbox.y
-            elif boundary1.collisions(self):
-                if boundary1.top.colliderect(self.hitbox):
-                    self.hitbox.top = boundary1.top.bottom
-                    self.y = self.hitbox.y
+            else:
+                for boundary in boundaries:
+                    if boundary.collisions(self):
+                        if boundary.top.colliderect(self.hitbox):
+                            self.hitbox.top = boundary.top.bottom
+                            self.y = self.hitbox.y
+                            break
         if keys[pygame.K_DOWN]:
             self.y += speed
             self.update()
             if station1.collisions(self):
                 self.hitbox.bottom = station1.hitbox.top
                 self.y = self.hitbox.y
-            elif boundary1.collisions(self):
-                if boundary1.bottom.colliderect(self.hitbox):
-                    self.hitbox.bottom = boundary1.bottom.top
-                    self.y = self.hitbox.y
+            else:
+                for boundary in boundaries:
+                    if boundary.collisions(self):
+                        if boundary.bottom.colliderect(self.hitbox):
+                            self.hitbox.bottom = boundary.bottom.top
+                            self.y = self.hitbox.y
+                            break
 
         if self.x < 0:
             self.x = 0
@@ -146,8 +164,15 @@ class boundary(): # boundaries for the dungeon background so it feels like a roo
                 or self.right.colliderect(player.hitbox)
         )
 
-# Boundary Objects
-boundary1 = boundary(0, 0, WORLD_WIDTH, WORLD_HEIGHT)
+# Boundary Objects - Multiple boundaries to match dungeon layout
+boundary1 = boundary(175, 100, 800, 600)      # Main room (top-left)
+boundary2 = boundary(1000, 100, 1200, 600)   # Main room extension (top-right)
+boundary3 = boundary(175, 750, 600, 800)     # Left corridor/room
+boundary4 = boundary(800, 750, 800, 800)     # Central corridor
+boundary5 = boundary(1650, 750, 600, 800)    # Right corridor/room
+boundary6 = boundary(175, 1600, 2100, 500)   # Bottom large room
+
+boundaries = [boundary1, boundary2, boundary3, boundary4, boundary5, boundary6]
 
 
 class slot():
@@ -198,6 +223,25 @@ class Monster():
                 player.last_hit = current_time  # Reset the timer
                 return True
         return False
+
+    def boundary_collisions(self, boundaries):
+        for boundary in boundaries:
+            if boundary.left.colliderect(self.hitbox):
+                self.hitbox.left = boundary.left.right
+                self.x = self.hitbox.x
+                break
+            if boundary.right.colliderect(self.hitbox):
+                self.hitbox.right = boundary.right.left
+                self.x = self.hitbox.x
+                break
+            if boundary.top.colliderect(self.hitbox):
+                self.hitbox.top = boundary.top.bottom
+                self.y = self.hitbox.y
+                break
+            if boundary.bottom.colliderect(self.hitbox):
+                self.hitbox.bottom = boundary.bottom.top
+                self.y = self.hitbox.y
+                break
 
     def movement(self, player):
         if player.x > self.x:
@@ -321,6 +365,7 @@ def main():
             for monster in monsters:
                 monster.movement(player)
                 monster.collisions()
+                monster.boundary_collisions(boundaries)  # Check for boundary collisions
                 monster.draw(camera_x, camera_y)
 
             # Objects made from class
